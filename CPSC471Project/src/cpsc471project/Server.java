@@ -8,6 +8,16 @@ import java.net.Socket;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.OutputStream;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
+import java.io.DataInputStream;
+import java.io.InputStream;
+
 public class Server {
     
     public static void main(String[] args)
@@ -17,7 +27,7 @@ public class Server {
         String output;
         String command[] = new String[2];
         boolean success;
-     
+        
                 
         
         try {
@@ -52,7 +62,7 @@ public class Server {
             }
             else if("get".equals(command[0]))
             {
-                success = get(command[1]);
+                success = get(command[1], clientSocket);
             }
             else if("put".equals(command[0]))
             {
@@ -76,11 +86,44 @@ public class Server {
     }
 
     //The get command method
-    public static boolean get(String Message)
+    public static boolean get(String Message, Socket client) throws FileNotFoundException, IOException
     {
         boolean success = false;
-    
+        int count = 0;
+        
+        File myFile = new File(Message);
+        long length = myFile.length();
+        byte data[] = new byte[16*1024];
+        
+        InputStream in = new FileInputStream(myFile);
+        OutputStream out = client.getOutputStream();
+   
+        while((count = in.read(data)) > 0)
+        {
+         out.write(data, 0, count);
+        }
+        out.close();
+        in.close();
+                
+        
+        
+        
+//        if(myFile.exists())
+//        {
+//            System.out.println("found file");
+//            byte[] byteArray = new byte[(int)myFile.length()];
+//            FileInputStream fileStream = new FileInputStream(myFile);
+//            BufferedInputStream bufStream = new BufferedInputStream(fileStream);
+//            bufStream.read(byteArray, 0,byteArray.length);
+//            OutputStream outStream = client.getOutputStream();
+//            outStream.write(byteArray, 0, byteArray.length);
+//            outStream.flush();
+//            success = true;
+//        }
+        
         System.out.println("get!!!");
+        System.out.println(success);
+        
         return success;
     }
 

@@ -16,6 +16,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.DataInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 
 public class Server {
@@ -58,15 +59,15 @@ public class Server {
 //            //IF block that calls the right method based on what command is inputed
             if("ls".equals(command[0]))
             {
-                success = LS();
+                LS();
             }
             else if("get".equals(command[0]))
             {
-                success = get(command[1], clientSocket);
+                get(command[1], clientSocket);
             }
             else if("put".equals(command[0]))
             {
-                success = put(command[1]);
+                put(command[1], clientSocket);
             }
        
             
@@ -78,17 +79,15 @@ public class Server {
     }
     
     //The list commands method
-    public static boolean LS()
+    public static void LS()
     {
         boolean success = false;
         System.out.println("LS!!!");
-        return success;
     }
 
     //The get command method
-    public static boolean get(String Message, Socket client) throws FileNotFoundException, IOException
+    public static void get(String Message, Socket client) throws FileNotFoundException, IOException
     {
-        boolean success = false;
         int count = 0;
         
         File myFile = new File(Message);
@@ -98,42 +97,42 @@ public class Server {
         InputStream in = new FileInputStream(myFile);
         OutputStream out = client.getOutputStream();
    
-        while((count = in.read(data)) > 0)
+        if(myFile.exists())
         {
-         out.write(data, 0, count);
+            while((count = in.read(data)) > 0)
+            {
+                out.write(data, 0, count);
+            }
+            System.out.println("SUCCESS");
         }
+        else
+        {
+            System.out.println("FAILURE");
+        }
+            
         out.close();
         in.close();
-                
-        
-        
-        
-//        if(myFile.exists())
-//        {
-//            System.out.println("found file");
-//            byte[] byteArray = new byte[(int)myFile.length()];
-//            FileInputStream fileStream = new FileInputStream(myFile);
-//            BufferedInputStream bufStream = new BufferedInputStream(fileStream);
-//            bufStream.read(byteArray, 0,byteArray.length);
-//            OutputStream outStream = client.getOutputStream();
-//            outStream.write(byteArray, 0, byteArray.length);
-//            outStream.flush();
-//            success = true;
-//        }
         
         System.out.println("get!!!");
-        System.out.println(success);
         
-        return success;
     }
 
     //the put command method
-    public static boolean put(String Message)
+    public static void put(String Message, Socket client) throws IOException
     {
         boolean success = false;
-    
+        int count;
+        InputStream in =client.getInputStream();
+       
+        OutputStream out = new FileOutputStream(Message);
+       
+        byte data[] = new byte[16*1024];
+       
+        while((count = in.read(data)) > 0)
+        {
+            out.write(data, 0, count);
+        }
         System.out.println("put!!!");
-        return success;
     }
 
 
